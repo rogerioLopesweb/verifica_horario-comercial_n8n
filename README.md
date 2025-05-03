@@ -2,6 +2,9 @@
 
 Este repositório contém um fluxo do [n8n](https://n8n.io/) que verifica se uma mensagem de chat foi recebida dentro do horário comercial e responde automaticamente com base nisso.
 
+![image](https://github.com/user-attachments/assets/9e82c012-cfd4-436b-8739-4ba746aa8472)
+
+
 ## 📌 Funcionalidade
 
 O fluxo implementa a seguinte lógica:
