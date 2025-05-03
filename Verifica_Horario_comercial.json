@@ -1,0 +1,192 @@
+{
+  "name": "HorArio_comercial",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const data = new Date();\n\n  // Ajustar para timezone de São Paulo (UTC-3 ou UTC-2 no horário de verão, se aplicável)\n  const dataSP = new Date(data.toLocaleString(\"en-US\", { timeZone: \"America/Sao_Paulo\" }));\n\n  const diaSemana = dataSP.getDay(); // 0 = domingo, 1 = segunda, ..., 6 = sábado\n  const hora = dataSP.getHours();\n\n  let horarioComercial = false;\n\n  if (diaSemana >= 1 && diaSemana <= 5) {\n    horarioComercial = hora >= 9 && hora < 18;\n  } else if (diaSemana === 6) {\n    horarioComercial = hora >= 9 && hora < 14;\n  }\n\n  results.push({\n    json: {\n      ...item.json,\n      horarioComercial\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "id": "6bc9c4ce-0f5e-4d6d-8e24-eb6a3fca9b23",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.horarioComercial }}",
+              "value2": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "id": "85dcbd9d-a4d6-481a-9f48-4c66e5cab0e1",
+      "name": "Está em horário comercial?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -100
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "resposta",
+              "value": "Olá! Perfeito, estamos disponíveis para te atender!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "01f27d5e-be2e-4e4c-a098-476ce369303b",
+      "name": "Preparar resposta Dentro do horário",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        360,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "resposta",
+              "value": "Olá! No momento estamos fora do horário comercial. Em breve retornaremos."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0445e1bb-c925-4a3a-bda9-487db69074d7",
+      "name": "Preparar resposta Fora do horário",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3ff69481-ea0f-47d6-8ecd-07e4a8619890",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -260,
+        -100
+      ],
+      "id": "30887f2b-d1ff-45e8-9b12-974f308be632",
+      "name": "When chat message received",
+      "webhookId": "0b58416c-81cb-44da-b5ea-217bedb2bc1a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Está em horário comercial?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Está em horário comercial?": {
+      "main": [
+        [
+          {
+            "node": "Preparar resposta Dentro do horário",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar resposta Fora do horário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar resposta Dentro do horário": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar resposta Fora do horário": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "7b56a5f8-8e53-470c-84c4-6e81b25dc5f5",
+  "meta": {
+    "instanceId": "dd3173afe24bd239a195160d1d437dbdd7957c8fd0002c7ca0ea71a09eb146a0"
+  },
+  "id": "QYp85s9NRbpA4gyH",
+  "tags": [
+    {
+      "createdAt": "2025-05-03T16:16:52.630Z",
+      "updatedAt": "2025-05-03T16:16:52.630Z",
+      "id": "1zU6f71Qg02b1zZY",
+      "name": "Code"
+    }
+  ]
+}
